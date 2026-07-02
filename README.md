@@ -5,7 +5,7 @@ Add the things you do every day — skincare, water, study, exercise, work,
 sleep — and get a local notification at the right time. Dark, premium, minimal.
 
 - **UI:** Thai
-- **Style:** black / charcoal with a single gold accent
+- **Style:** dark navy with a single blue accent
 - **Bundle ID:** `com.dailybell.app`
 - **IPA name:** `DailyBell.ipa`
 - **Build:** SwiftUI + XcodeGen, unsigned IPA via GitHub Actions, signed/installed with KSign
@@ -17,7 +17,8 @@ sleep — and get a local notification at the right time. Dark, premium, minimal
 - Today's reminders sorted by time, with a separate "เสร็จแล้ว" (done) section
 - Local notifications via `UNUserNotificationCenter`, permission requested on first launch
 - Thai warning banner if notification permission is denied (with a Settings shortcut)
-- **ทดสอบแจ้งเตือน** (test notification) button — fires a test in ~5 seconds
+- Enable/disable a reminder's notification directly from the list (tap the bell icon)
+- Settings page: notification status, open system settings, **ทดสอบแจ้งเตือน** (test notification, fires in ~5s), delete all reminders, app info
 - Local storage with `Codable` + `UserDefaults`
 
 ## Project layout
@@ -32,6 +33,7 @@ DailyBell/
     Reminder.swift                # Model (Codable, daily-done logic)
     ReminderStore.swift           # Persistence + CRUD + notification sync
     NotificationManager.swift     # Permission + scheduling + test
+    SettingsView.swift            # Notification status, test, reset data, about
     Theme.swift                   # Palette + shared form components
   Assets.xcassets/
     Contents.json
@@ -112,7 +114,7 @@ If your icon folder didn't upload as a real folder:
 5. First launch: tap **Allow** when DailyBell asks for notification permission.
    - If you tap "Don't Allow," the app shows a Thai warning banner with a
      shortcut to enable notifications in Settings.
-6. Use **ทดสอบแจ้งเตือน** on the main screen to confirm notifications work.
+6. Open the gear icon → **การตั้งค่า** → **ทดสอบแจ้งเตือน** to confirm notifications work.
 
 ---
 

@@ -43,6 +43,19 @@ final class ReminderStore: ObservableObject {
         reminders[index].lastCompletedDate = reminders[index].isDoneToday ? nil : Date()
     }
 
+    /// Enable/disable the reminder's notification without opening the edit screen.
+    func toggleNotification(_ reminder: Reminder) {
+        guard let index = reminders.firstIndex(where: { $0.id == reminder.id }) else { return }
+        reminders[index].notificationEnabled.toggle()
+        rescheduleNotifications()
+    }
+
+    /// Removes all reminders and cancels their scheduled notifications.
+    func deleteAll() {
+        reminders.removeAll()
+        rescheduleNotifications()
+    }
+
     func rescheduleNotifications() {
         NotificationManager.shared.sync(reminders)
     }

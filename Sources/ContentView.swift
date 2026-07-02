@@ -8,7 +8,7 @@ struct ContentView: View {
 
     @State private var showingAdd = false
     @State private var editing: Reminder?
-    @State private var showTestAlert = false
+    @State private var showingSettings = false
 
     private var pending: [Reminder] { store.sortedReminders.filter { !$0.isDoneToday } }
     private var done: [Reminder] { store.sortedReminders.filter { $0.isDoneToday } }
@@ -22,7 +22,7 @@ struct ContentView: View {
             }
             .toolbar(.hidden, for: .navigationBar)
         }
-        .tint(Palette.gold)
+        .tint(Palette.accent)
         .preferredColorScheme(.dark)
         .sheet(isPresented: $showingAdd) {
             AddReminderView().environmentObject(store)
@@ -30,10 +30,8 @@ struct ContentView: View {
         .sheet(item: $editing) { reminder in
             EditReminderView(reminder: reminder).environmentObject(store)
         }
-        .alert("ส่งการแจ้งเตือนทดสอบแล้ว", isPresented: $showTestAlert) {
-            Button("ตกลง", role: .cancel) {}
-        } message: {
-            Text("การแจ้งเตือนจะปรากฏภายใน 5 วินาที")
+        .sheet(isPresented: $showingSettings) {
+            SettingsView().environmentObject(store)
         }
         .onChange(of: scenePhase) { phase in
             if phase == .active { notifications.refreshStatus() }
@@ -66,18 +64,14 @@ struct ContentView: View {
             }
             Spacer()
             Button {
-                notifications.sendTestNotification()
-                showTestAlert = true
+                showingSettings = true
             } label: {
-                HStack(spacing: 6) {
-                    Image(systemName: "bell.badge")
-                    Text("ทดสอบแจ้งเตือน")
-                        .font(.system(size: 13, weight: .semibold))
-                }
-                .foregroundColor(Palette.goldSoft)
-                .padding(.horizontal, 12)
-                .padding(.vertical, 8)
-                .background(Capsule().stroke(Palette.gold.opacity(0.4)))
+                Image(systemName: "gearshape.fill")
+                    .font(.system(size: 16, weight: .medium))
+                    .foregroundColor(Palette.ink2)
+                    .frame(width: 38, height: 38)
+                    .background(Circle().fill(Palette.card))
+                    .overlay(Circle().stroke(Palette.line))
             }
         }
         .padding(.horizontal, 20)
@@ -88,7 +82,7 @@ struct ContentView: View {
     private var warningBanner: some View {
         HStack(spacing: 12) {
             Image(systemName: "exclamationmark.triangle.fill")
-                .foregroundColor(Palette.gold)
+                .foregroundColor(Palette.accent)
             VStack(alignment: .leading, spacing: 2) {
                 Text("การแจ้งเตือนถูกปิดอยู่")
                     .font(.system(size: 14, weight: .semibold))
@@ -101,11 +95,11 @@ struct ContentView: View {
             Spacer()
             Button("ตั้งค่า") { openSettings() }
                 .font(.system(size: 13, weight: .semibold))
-                .foregroundColor(Palette.goldSoft)
+                .foregroundColor(Palette.accentSoft)
         }
         .padding(14)
         .background(RoundedRectangle(cornerRadius: 14).fill(Palette.card))
-        .overlay(RoundedRectangle(cornerRadius: 14).stroke(Palette.gold.opacity(0.35)))
+        .overlay(RoundedRectangle(cornerRadius: 14).stroke(Palette.accent.opacity(0.35)))
         .padding(.horizontal, 16)
         .padding(.bottom, 6)
     }
@@ -137,9 +131,11 @@ struct ContentView: View {
     }
 
     private func reminderRow(_ reminder: Reminder) -> some View {
-        ReminderRow(reminder: reminder) {
-            store.toggleDone(reminder)
-        }
+        ReminderRow(
+            reminder: reminder,
+            onToggleDone: { store.toggleDone(reminder) },
+            onToggleNotification: { store.toggleNotification(reminder) }
+        )
         .contentShape(Rectangle())
         .onTapGesture { editing = reminder }
         .listRowBackground(Color.clear)
@@ -187,11 +183,11 @@ struct ContentView: View {
                 Text("เพิ่มรายการ")
                     .font(.system(size: 15, weight: .semibold))
             }
-            .foregroundColor(Palette.onGold)
+            .foregroundColor(Palette.onAccent)
             .padding(.horizontal, 20)
             .padding(.vertical, 14)
-            .background(Capsule().fill(Palette.gold))
-            .shadow(color: Palette.gold.opacity(0.35), radius: 12, y: 6)
+            .background(Capsule().fill(Palette.accent))
+            .shadow(color: Palette.accent.opacity(0.35), radius: 12, y: 6)
         }
         .padding(.trailing, 18)
         .padding(.bottom, 22)
@@ -216,7 +212,8 @@ struct ContentView: View {
 /// A single reminder row in the today list.
 struct ReminderRow: View {
     let reminder: Reminder
-    var onToggle: () -> Void
+    var onToggleDone: () -> Void
+    var onToggleNotification: () -> Void
 
     var body: some View {
         HStack(spacing: 12) {
@@ -237,7 +234,7 @@ struct ReminderRow: View {
                         if reminder.repeatsDaily {
                             Label("ทุกวัน", systemImage: "arrow.triangle.2.circlepath")
                                 .font(.system(size: 11))
-                                .foregroundColor(Palette.gold.opacity(0.85))
+                                .foregroundColor(Palette.accent.opacity(0.85))
                         }
                         if !reminder.note.isEmpty {
                             Text(reminder.repeatsDaily ? "· \(reminder.note)" : reminder.note)
@@ -251,17 +248,21 @@ struct ReminderRow: View {
 
             Spacer()
 
-            Image(systemName: reminder.notificationEnabled ? "bell.fill" : "bell.slash")
-                .font(.system(size: 13))
-                .foregroundColor(reminder.notificationEnabled ? Palette.gold : Palette.muted.opacity(0.5))
+            Button(action: onToggleNotification) {
+                Image(systemName: reminder.notificationEnabled ? "bell.fill" : "bell.slash")
+                    .font(.system(size: 13))
+                    .foregroundColor(reminder.notificationEnabled ? Palette.accent : Palette.muted.opacity(0.5))
+                    .frame(width: 24, height: 24)
+            }
+            .buttonStyle(.plain)
 
-            Button(action: onToggle) {
+            Button(action: onToggleDone) {
                 ZStack {
                     Circle()
-                        .fill(reminder.isDoneToday ? Palette.gold : Color.clear)
+                        .fill(reminder.isDoneToday ? Palette.accent : Color.clear)
                         .overlay(
                             Circle().stroke(
-                                reminder.isDoneToday ? Palette.gold : Color.white.opacity(0.25),
+                                reminder.isDoneToday ? Palette.accent : Color.white.opacity(0.25),
                                 lineWidth: 1.6
                             )
                         )
@@ -269,7 +270,7 @@ struct ReminderRow: View {
                     if reminder.isDoneToday {
                         Image(systemName: "checkmark")
                             .font(.system(size: 12, weight: .bold))
-                            .foregroundColor(Palette.onGold)
+                            .foregroundColor(Palette.onAccent)
                     }
                 }
             }
