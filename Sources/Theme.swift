@@ -12,18 +12,18 @@ extension Color {
     }
 }
 
-/// Dark, premium-minimal palette: black/charcoal surfaces, one gold accent.
+/// Dark blue, clean palette: navy surfaces, one blue accent.
 enum Palette {
-    static let bg       = Color(hex: 0x0C0C10)
-    static let card     = Color(hex: 0x16161B)
-    static let ink      = Color(hex: 0xECEAE4)
-    static let ink2     = Color(hex: 0xA6A39C)
-    static let muted    = Color(hex: 0x6C6964)
-    static let gold     = Color(hex: 0xD9A441)
-    static let goldSoft = Color(hex: 0xE8C272)
-    static let red      = Color(hex: 0x9C443B)
-    static let line     = Color.white.opacity(0.08)
-    static let onGold   = Color(hex: 0x1A1407)
+    static let bg          = Color(hex: 0x0A0E1A)
+    static let card        = Color(hex: 0x121A2C)
+    static let ink         = Color(hex: 0xEDEFF5)
+    static let ink2        = Color(hex: 0xA8B0C3)
+    static let muted       = Color(hex: 0x5B6478)
+    static let accent      = Color(hex: 0x4C8DFF)
+    static let accentSoft  = Color(hex: 0x8AB4FF)
+    static let red         = Color(hex: 0xE0554F)
+    static let line        = Color.white.opacity(0.08)
+    static let onAccent    = Color(hex: 0x061022)
 }
 
 /// A labelled input card used in the add / edit forms.
@@ -57,7 +57,7 @@ struct ToggleRow: View {
     var body: some View {
         HStack(spacing: 10) {
             Image(systemName: icon)
-                .foregroundColor(Palette.gold)
+                .foregroundColor(Palette.accent)
                 .frame(width: 22)
             Text(title)
                 .font(.system(size: 15))
@@ -65,7 +65,7 @@ struct ToggleRow: View {
             Spacer()
             Toggle("", isOn: $isOn)
                 .labelsHidden()
-                .tint(Palette.gold)
+                .tint(Palette.accent)
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 12)

@@ -23,7 +23,7 @@ struct AddReminderView: View {
                         FormField(label: "หัวข้อ") {
                             TextField("เช่น ดื่มน้ำ 1 แก้ว", text: $title)
                                 .foregroundColor(Palette.ink)
-                                .tint(Palette.gold)
+                                .tint(Palette.accent)
                         }
 
                         FormField(label: "เวลา") {
@@ -31,7 +31,7 @@ struct AddReminderView: View {
                                 DatePicker("", selection: $time, displayedComponents: .hourAndMinute)
                                     .labelsHidden()
                                     .datePickerStyle(.compact)
-                                    .tint(Palette.gold)
+                                    .tint(Palette.accent)
                                 Spacer()
                             }
                         }
@@ -39,7 +39,7 @@ struct AddReminderView: View {
                         FormField(label: "บันทึกช่วยจำ (ไม่บังคับ)") {
                             TextField("เช่น หลังอาหารเช้า", text: $note)
                                 .foregroundColor(Palette.ink)
-                                .tint(Palette.gold)
+                                .tint(Palette.accent)
                         }
 
                         VStack(spacing: 10) {
@@ -66,7 +66,7 @@ struct AddReminderView: View {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("บันทึก") { save() }
                         .fontWeight(.semibold)
-                        .foregroundColor(trimmedTitle.isEmpty ? Palette.muted : Palette.gold)
+                        .foregroundColor(trimmedTitle.isEmpty ? Palette.muted : Palette.accent)
                         .disabled(trimmedTitle.isEmpty)
                 }
             }
